@@ -22,11 +22,15 @@ from builtins import str
 from builtins import range
 import curses
 import curses.ascii
-import imp
 import sys
 import unittest
 
-imp.load_source('speedpad', '../bin/speedpad')
+if sys.hexversion >= 0x03000000:
+    import importlib
+    importlib.machinery.SourceFileLoader('speedpad', '../bin/speedpad').load_module()
+else:
+    import imp
+    imp.load_source('speedpad', '../bin/speedpad')
 import speedpad
 
 stdscr = None
