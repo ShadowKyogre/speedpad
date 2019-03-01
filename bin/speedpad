@@ -589,7 +589,10 @@ class QuoteGenerator(InputDecodingMixIn):
         return self
 
     def next(self):
-        raw = self.iterator.next()
+        return self.__next__()
+
+    def __next__(self):
+        raw = next(self.iterator)
         try:
             raw = self.decode(raw)
         except UnicodeDecodeError as e:
@@ -1573,7 +1576,7 @@ def main(*args, **kwargs):
             os.close(dumpfd)
         try:
             dumpfd = os.open(args.outfile,
-                             os.O_CREAT | os.O_WRONLY | os.O_APPEND, 0600)
+                             os.O_CREAT | os.O_WRONLY | os.O_APPEND, 0o600)
         except EnvironmentError as e:
             sys.stderr.write("Error: %s: %r\n" % (e.strerror, e.filename))
             sys.exit(1)

@@ -314,19 +314,19 @@ class TestQuoteGenerator(TestCase):
 
     def test_iterator(self):
         quotegen = speedpad.QuoteGenerator(self.factory, 2, 10)
-        quote = quotegen.iterator.next()
+        quote = next(quotegen.iterator)
         self.assertEqual(quote, self.raw[:20])
 
     def test_iteration(self):
         quotegen = speedpad.QuoteGenerator(self.factory, 2, 10)
-        quote = quotegen.next()
+        quote = next(quotegen)
         self.assertTrue(isinstance(quote, speedpad.Quote))
         self.assertEqual(quote.strlen, 20)
         self.assertEqual(quote.lines, [self.raw[:10], self.raw[10:20]])
 
     def test_clean(self):
         quotegen = speedpad.QuoteGenerator(self.factory, 2, 10)
-        quote = quotegen.iterator.next()
+        quote = next(quotegen.iterator)
         # input too long
         quotegen.wrapper.width = 20
         clean = quotegen.clean(quote)
@@ -343,13 +343,13 @@ class TestQuoteGenerator(TestCase):
         quotegen = speedpad.QuoteGenerator(self.factory, 1, 50, strip=True)
         self.raw = " foo barbaz    qux "
         expect = [  "foo barbaz qux"     ]
-        quote = quotegen.iterator.next()
+        quote = next(quotegen.iterator)
         clean = quotegen.clean(quote)
         self.assertEqual(clean, expect)
         quotegen = speedpad.QuoteGenerator(self.factory, 1, 50, strip=False)
         self.raw = " foo barbaz    qux "
         expect = [ " foo barbaz    qux"  ]
-        quote = quotegen.iterator.next()
+        quote = next(quotegen.iterator)
         clean = quotegen.clean(quote)
         self.assertEqual(clean, expect)
         # tab expansion
@@ -357,14 +357,14 @@ class TestQuoteGenerator(TestCase):
                                            strip=False, tabsize=8)
         self.raw = " foo\tbarbaz    qux "
         expect = [ " foo    barbaz    qux"  ]
-        quote = quotegen.iterator.next()
+        quote = next(quotegen.iterator)
         clean = quotegen.clean(quote)
         self.assertEqual(clean, expect)
         quotegen = speedpad.QuoteGenerator(self.factory, 1, 50,
                                            strip=False, tabsize=5)
         self.raw = " foo\tbarbaz    qux "
         expect = [ " foo barbaz    qux"  ]
-        quote = quotegen.iterator.next()
+        quote = next(quotegen.iterator)
         clean = quotegen.clean(quote)
         self.assertEqual(clean, expect)
         # wrap
@@ -390,26 +390,26 @@ class TestQuoteGenerator(TestCase):
                 "zzz",
                 "",
         ]
-        quote = quotegen.iterator.next()
+        quote = next(quotegen.iterator)
         clean = quotegen.clean(quote)
         self.assertEqual(clean, expect)
         # same with wrap past last column
         quotegen = speedpad.QuoteGenerator(self.factory, 10, 10,
                                            strip=False, tabsize=4, wrap=20)
-        quote = quotegen.iterator.next()
+        quote = next(quotegen.iterator)
         clean = quotegen.clean(quote)
         self.assertEqual(clean, expect)
         # same with auto wrap
         quotegen = speedpad.QuoteGenerator(self.factory, 10, 10,
                                            strip=False, tabsize=4, wrap=0)
-        quote = quotegen.iterator.next()
+        quote = next(quotegen.iterator)
         clean = quotegen.clean(quote)
         self.assertEqual(clean, expect)
         # same with auto wrap and default width
         quotegen = speedpad.QuoteGenerator(self.factory, 10, 50,
                                            strip=False, tabsize=4,
                                            wrap=0, width=10)
-        quote = quotegen.iterator.next()
+        quote = next(quotegen.iterator)
         clean = quotegen.clean(quote)
         self.assertEqual(clean, expect)
 
@@ -436,7 +436,7 @@ class TestQuoteGenerator(TestCase):
         ]
         quotegen = speedpad.QuoteGenerator(self.factory, 10, 50,
                                            strip=False, tabsize=4, wrap=0)
-        quote = quotegen.iterator.next()
+        quote = next(quotegen.iterator)
         clean = quotegen.clean(quote)
         self.assertNotEqual(clean, expect)
         quotegen.resize(0, -40)
