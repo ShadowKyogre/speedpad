@@ -20,12 +20,6 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 #
 from __future__ import division
-from builtins import str
-from builtins import map
-from builtins import next
-from builtins import range
-from past.utils import old_div
-from builtins import object
 __author__ = 'John Feuerstein <john@feurix.com>'
 __copyright__ = 'Copyright (C) 2011 %s' % __author__
 __license__ = 'GNU GPLv3'
@@ -420,9 +414,9 @@ class InputBox(PadBox):
                         format(quote.stats.keystrokes_tab +
                                quote.stats.keystrokes_space))
         self.pad.addstr(2, xpos, "%16d (good: %d%%)" %
-                        (format(good), round(old_div(good, total * 100))))
+                        (format(good), round((good / total) * 100)))
         self.pad.addstr(3, xpos, "%16d (typo: %d%%)" %
-                        (format(typo), round(old_div(typo, total * 100))))
+                        (format(typo), round((typo / total) * 100)))
         self.pad.addstr(4, xpos, "%16d (total)" % format(total))
         if typo:
             xmax = min(SpeedPad.SCR_XMIN + 4, self.boxcols)
@@ -496,7 +490,7 @@ class InputStats(object):
     def speed(self):
         elapsed = float(self.timer.elapsed)
         if elapsed < 1.0: return Speed(0.0)
-        return Speed(old_div(self.keystrokes_good, elapsed))
+        return Speed(self.keystrokes_good / elapsed)
 
     @property
     def typo_highscore(self):
@@ -1050,9 +1044,9 @@ class SpeedPad(InputDecodingMixIn, OutputEncodingMixIn):
         update_interval_progress = 0.1  # seconds
         sleep = 0.01                    # seconds
         scan = int(sleep * 1000)        # milliseconds
-        update_iterations_screen = int(old_div(update_interval_screen, sleep))
-        update_iterations_speed = int(old_div(update_interval_speed, sleep))
-        update_iterations_progress = int(old_div(update_interval_progress, sleep))
+        update_iterations_screen = update_interval_screen // sleep
+        update_iterations_speed = update_interval_speed // sleep
+        update_iterations_progress = update_interval_progress // sleep
         self.hide_cursor()
         self.update_screen()
         for quote in self.quotegen:     # next quote
@@ -1485,13 +1479,13 @@ def main(*args, **kwargs):
     speedbase = Speed(1.0)
     if args.cps:
         speedunit = cps
-        speed = old_div((args.speed or 8.0), speedunit(speedbase))
+        speed = (args.speed or 8.0) / speedunit(speedbase)
     elif args.cpm:
         speedunit = cpm
-        speed = old_div((args.speed or 500.0), speedunit(speedbase))
+        speed = (args.speed or 500.0) / speedunit(speedbase)
     else:
         speedunit = wpm
-        speed = old_div((args.speed or 100.0), speedunit(speedbase))
+        speed = (args.speed or 100.0) / speedunit(speedbase)
     if args.no_robot:
         speed = 0.0
 
