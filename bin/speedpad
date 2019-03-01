@@ -41,6 +41,7 @@ import itertools
 import operator
 import signal
 import struct
+import sys
 import textwrap
 import time
 import tty
@@ -58,8 +59,18 @@ class InputDecodingMixIn(object):
 
     def decode(self, s):
         if self.input_encoding is not None:
-            return self.input_encoding.decode(s)[0]
-        return s
+            if type(s) is bytes:
+                return self.input_encoding.decode(s)[0]
+            else:
+                return s
+        else:
+            if type(s) is bytes:
+                if sys.hexversion >= 0x03000000:
+                    return s.decode('utf-8')
+                else:
+                    return s.decode('ascii')
+            else:
+                return s
 
 
 class Box(InputDecodingMixIn, OutputEncodingMixIn):
@@ -348,8 +359,8 @@ class InputBox(PadBox):
         The parameter neweol gives us a hint about the maximum length of the
         new line.
         """
-        lead = self.extract(oldypos, oldsol, 2)
-        trail = self.extract(oldypos, max(0, oldeol - 2), 2)
+        lead = self.decode(self.extract(oldypos, oldsol, 2))
+        trail = self.decode(self.extract(oldypos, max(0, oldeol - 2), 2))
         if lead == '*/':
             if oldsol > 0 and neweol > 0:
                 return [curses.ascii.BS]
@@ -1350,12 +1361,8 @@ cph = SpeedUnit('cph')
 
 
 def main(*args, **kwargs):
-    import sys
     if sys.hexversion < 0x020700F0:
         sys.stderr.write("Require Python 2.7 or later!\n")
-        sys.exit(1)
-    if sys.hexversion >= 0x03000000:
-        sys.stderr.write("Require Python 2!\n")
         sys.exit(1)
     import argparse
     import getpass
