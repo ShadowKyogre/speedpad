@@ -19,6 +19,13 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 #
+from __future__ import division
+from builtins import str
+from builtins import map
+from builtins import next
+from builtins import range
+from past.utils import old_div
+from builtins import object
 __author__ = 'John Feuerstein <john@feurix.com>'
 __copyright__ = 'Copyright (C) 2011 %s' % __author__
 __license__ = 'GNU GPLv3'
@@ -184,7 +191,7 @@ class PadBox(Box):
     def sol(self, ypos, skip=0):
         oldy, oldx = self.pad.getyx()
         startpos = 0
-        for xpos in xrange(skip, self.padcols):
+        for xpos in range(skip, self.padcols):
             if self.pad.inch(ypos, xpos) != curses.ascii.SP:
                 startpos = xpos
                 break
@@ -194,7 +201,7 @@ class PadBox(Box):
     def eol(self, ypos):
         oldy, oldx = self.pad.getyx()
         endpos = 0
-        for xpos in xrange(self.padcols - 1, -1, -1):
+        for xpos in range(self.padcols - 1, -1, -1):
             if self.pad.inch(ypos, xpos) != curses.ascii.SP:
                 endpos = xpos + 1
                 break
@@ -402,9 +409,9 @@ class InputBox(PadBox):
                         format(quote.stats.keystrokes_tab +
                                quote.stats.keystrokes_space))
         self.pad.addstr(2, xpos, "%16d (good: %d%%)" %
-                        (format(good), round(good / total * 100)))
+                        (format(good), round(old_div(good, total * 100))))
         self.pad.addstr(3, xpos, "%16d (typo: %d%%)" %
-                        (format(typo), round(typo / total * 100)))
+                        (format(typo), round(old_div(typo, total * 100))))
         self.pad.addstr(4, xpos, "%16d (total)" % format(total))
         if typo:
             xmax = min(SpeedPad.SCR_XMIN + 4, self.boxcols)
@@ -478,23 +485,23 @@ class InputStats(object):
     def speed(self):
         elapsed = float(self.timer.elapsed)
         if elapsed < 1.0: return Speed(0.0)
-        return Speed(self.keystrokes_good / elapsed)
+        return Speed(old_div(self.keystrokes_good, elapsed))
 
     @property
     def typo_highscore(self):
         highscore = []
-        typocounts = self.typocounts.items()
+        typocounts = list(self.typocounts.items())
         # [(c,{z:1}), (z,{x:1,y:2}), (a,{x:1}), (b,{v:2})]
         # sort increasing by alphabet
         typocounts.sort(key=operator.itemgetter(0))
         # [(a,{x:1}), (b,{v:2}, (c,{z:1}), (z,{x:1,y:2})]
         # sort decreasing by amount of typos (stable)
-        typosum = lambda i: sum(v for k, v in i[1].iteritems())
+        typosum = lambda i: sum(v for k, v in i[1].items())
         typocounts.sort(key=typosum, reverse=True)
         # [(z,{x:1,y:2}), (b,{v:2}), (a,{x:1}), (c,{z:1})]
         # sort nested dicts decreasing by value
         for expected, typos in typocounts:
-            typos = typos.items()
+            typos = list(typos.items())
             # [(x,1), (y,2), (a,1)]
             # sort increasing by alphabet
             typos.sort(key=operator.itemgetter(0))
@@ -561,7 +568,7 @@ class Quote(object):
         return ypos >= len(self.lines)
 
     def iscorrect(self):
-        return not any(self.stats.typos.itervalues())
+        return not any(self.stats.typos.values())
 
 
 class QuoteGenerator(InputDecodingMixIn):
@@ -588,7 +595,7 @@ class QuoteGenerator(InputDecodingMixIn):
     def __iter__(self):
         return self
 
-    def next(self):
+    def __next__(self):
         return self.__next__()
 
     def __next__(self):
@@ -1032,9 +1039,9 @@ class SpeedPad(InputDecodingMixIn, OutputEncodingMixIn):
         update_interval_progress = 0.1  # seconds
         sleep = 0.01                    # seconds
         scan = int(sleep * 1000)        # milliseconds
-        update_iterations_screen = int(update_interval_screen / sleep)
-        update_iterations_speed = int(update_interval_speed / sleep)
-        update_iterations_progress = int(update_interval_progress / sleep)
+        update_iterations_screen = int(old_div(update_interval_screen, sleep))
+        update_iterations_speed = int(old_div(update_interval_speed, sleep))
+        update_iterations_progress = int(old_div(update_interval_progress, sleep))
         self.hide_cursor()
         self.update_screen()
         for quote in self.quotegen:     # next quote
@@ -1471,13 +1478,13 @@ def main(*args, **kwargs):
     speedbase = Speed(1.0)
     if args.cps:
         speedunit = cps
-        speed = (args.speed or 8.0) / speedunit(speedbase)
+        speed = old_div((args.speed or 8.0), speedunit(speedbase))
     elif args.cpm:
         speedunit = cpm
-        speed = (args.speed or 500.0) / speedunit(speedbase)
+        speed = old_div((args.speed or 500.0), speedunit(speedbase))
     else:
         speedunit = wpm
-        speed = (args.speed or 100.0) / speedunit(speedbase)
+        speed = old_div((args.speed or 100.0), speedunit(speedbase))
     if args.no_robot:
         speed = 0.0
 

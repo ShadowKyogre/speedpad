@@ -16,6 +16,10 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
+from builtins import next
+from builtins import map
+from builtins import str
+from builtins import range
 import curses
 import curses.ascii
 import imp
@@ -635,7 +639,7 @@ class TestProgressBar(CursesTestCase):
         self.bar.draw(win, 0, 0)
         def eol(ypos):
             endpos = 0
-            for xpos in xrange(50 - 1, -1, -1):
+            for xpos in range(50 - 1, -1, -1):
                 if win.inch(ypos, xpos) != curses.ascii.SP:
                     endpos = xpos + 1
                     break
@@ -678,11 +682,11 @@ class TestInputBox(CursesTestCase):
         self.assertEqual(ch, ex)
         # fill box
         self.box.reset()
-        for pos in xrange(10 * 50):
+        for pos in range(10 * 50):
             self.box.putch(ex)
         # lower right pos should stay empty
-        for ypos in xrange(10):
-            for xpos in xrange(50):
+        for ypos in range(10):
+            for xpos in range(50):
                 ch = self.box.pad.inch(ypos, xpos)
                 if ypos == 9 and xpos == 49:
                     self.assertEqual(ch, curses.ascii.SP)
@@ -840,7 +844,7 @@ class TestInputBox(CursesTestCase):
         self.assertEqual(eol, 1)
         # at eol
         self.box.reset()
-        for xpos in xrange(50):
+        for xpos in range(50):
             self.box.putch(ex)
         eol = self.box.eol(0)
         self.assertEqual(eol, 50)
@@ -1528,7 +1532,7 @@ class TestSpeedPad(CursesTestCase):
 
 
 def str2ord(s):
-    return map(ord, s)
+    return list(map(ord, s))
 
 def run_tests(**kwargs):
     module = __import__(__name__)
