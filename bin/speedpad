@@ -441,8 +441,8 @@ class InputBox(PadBox):
                 expected, typos = score
                 typos = ''.join(typo for typo, count in typos)
                 self.pad.addstr(ypos, xpos, "[%s] [%s]" %
-                                (self.encode(expected[:1]),
-                                 self.encode(expand(typos))))
+                                (self.decode(expected[:1]),
+                                 self.decode(expand(typos))))
 
 
 class InputStats(object):
